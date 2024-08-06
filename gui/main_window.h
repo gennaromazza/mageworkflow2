@@ -2,11 +2,9 @@
 #define MAIN_WINDOW_H
 
 #include <QMainWindow>
-#include "image_converter.h"  // Corretto percorso per image_converter.h
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include <QPushButton>
+#include <QLineEdit>
+#include "image_converter.h"
 
 class MainWindow : public QMainWindow
 {
@@ -20,7 +18,9 @@ private slots:
     void on_button_convert_clicked();
 
 private:
-    Ui::MainWindow *ui;  // Dichiarazione della classe Ui::MainWindow
+    QPushButton *button_convert;
+    QLineEdit *inputPathLineEdit;
+    QLineEdit *outputPathLineEdit;
     ImageConverter imageConverter;
 };
 
