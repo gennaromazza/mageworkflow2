@@ -33,5 +33,41 @@ jobs:
         echo "QML2_IMPORT_PATH=/opt/Qt/5.12.2/gcc_64/qml" >> $GITHUB_ENV
         echo "Qt5_DIR=/opt/Qt/5.12.2/gcc_64/lib/cmake/Qt5" >> $GITHUB_ENV
 
+    - name: List Installed Qt Directory
+      run: |
+        echo "Listing Qt installation directory:"
+        ls -R /opt/Qt
+
+    - name: List Installed Qt 5.12.2 Directory
+      run: |
+        echo "Listing Qt 5.12.2 directory:"
+        ls -R /opt/Qt/5.12.2/gcc_64
+
+    - name: Check Qt5Config.cmake
+      run: |
+        echo "Checking for Qt5Config.cmake:"
+        ls /opt/Qt/5.12.2/gcc_64/lib/cmake/Qt5/Qt5Config.cmake
+
+    - name: Verify Qt Installation
+      run: |
+        echo "Qt5_DIR: $Qt5_DIR"
+        echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
+        find /opt/Qt -name Qt5Config.cmake
+
     - name: Configure CMake
-      run:
+      run: |
+        cmake -S . -B build -DCMAKE_PREFIX_PATH=/opt/Qt/5.12.2/gcc_64 --debug-find
+
+    - name: Build
+      run: |
+        cmake --build build --verbose
+
+    - name: List Build Directory
+      run: |
+        ls -R build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: PhotoWorkflow
+        path: build/
