@@ -12,13 +12,3 @@ CreateJobDialog::~CreateJobDialog()
 {
     delete ui;
 }
-
-QString CreateJobDialog::getJobName() const
-{
-    return ui->jobNameLineEdit->text();
-}
-
-QDate CreateJobDialog::getJobDate() const
-{
-    return ui->jobDateEdit->date();
-}
