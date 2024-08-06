@@ -24,19 +24,19 @@ jobs:
 
       - name: Install Qt
         run: |
-          python3 -m aqt install-qt linux desktop 5.12.2 gcc_64 --outputdir /home/runner/work/Magework/Qt
+          python3 -m aqt install-qt linux desktop 5.12.2 gcc_64 --outputdir /home/runner/work/PhotoWorkflow/Qt
 
       - name: List Installed Qt Directory
         run: |
-          ls -R /home/runner/work/Magework/Qt
+          ls -R /home/runner/work/PhotoWorkflow/Qt
 
       - name: List Installed Qt 5.12.2 Directory
         run: |
-          ls -R /home/runner/work/Magework/Qt/5.12.2/gcc_64
+          ls -R /home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build -DCMAKE_PREFIX_PATH="/home/runner/work/Magework/Qt/5.12.2/gcc_64/lib/cmake/Qt5"
+          cmake -S . -B build -DCMAKE_PREFIX_PATH="/home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64/lib/cmake/Qt5"
 
       - name: Build
         run: |
