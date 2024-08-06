@@ -8,7 +8,7 @@ class CreateJobDialog : public QDialog {
 
 public:
     CreateJobDialog(QWidget *parent = nullptr);
-    ~CreateJobDialog();
+    ~CreateJobDialog() override; // Assicurarsi che il distruttore sia virtuale
 };
 
 #endif // CREATE_JOB_DIALOG_H
