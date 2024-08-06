@@ -1,7 +1,7 @@
 #include "create_job_dialog.h"
 
 CreateJobDialog::CreateJobDialog(QWidget *parent) : QDialog(parent) {
-    // Setup UI and connect signals/slots
+    // Initialize UI elements
 }
 
 CreateJobDialog::~CreateJobDialog() {
