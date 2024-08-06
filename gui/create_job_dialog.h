@@ -1,9 +1,14 @@
-#include "create_job_dialog.h"
+#ifndef CREATE_JOB_DIALOG_H
+#define CREATE_JOB_DIALOG_H
 
-CreateJobDialog::CreateJobDialog(QWidget *parent) : QDialog(parent) {
-    // Initialize UI elements
-}
+#include <QDialog>
 
-CreateJobDialog::~CreateJobDialog() {
-    // Cleanup
-}
+class CreateJobDialog : public QDialog {
+    Q_OBJECT
+
+public:
+    CreateJobDialog(QWidget *parent = nullptr);
+    ~CreateJobDialog() override;
+};
+
+#endif // CREATE_JOB_DIALOG_H
