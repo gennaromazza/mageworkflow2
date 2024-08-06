@@ -1,5 +1,5 @@
 #include "main_window.h"
-#include "../file_manager.h"
+#include "file_manager.h"
 #include "create_job_dialog.h"
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -9,6 +9,7 @@
 #include <QIcon>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+    // Setup UI and connect signals/slots
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
 
@@ -52,8 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         int count1 = FileManager::searchFiles("/path/to/harddisk1", searchTerm.toStdString());
         int count2 = FileManager::searchFiles("/path/to/harddisk2", searchTerm.toStdString());
         QMessageBox::information(this, "Risultati Ricerca", 
-                                 QString("Hard Disk 1: %1 file(s)
-Hard Disk 2: %2 file(s)")
+                                 QString("Hard Disk 1: %1 file(s)\nHard Disk 2: %2 file(s)")
                                  .arg(count1).arg(count2));
     });
 
