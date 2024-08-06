@@ -9,17 +9,19 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(Boost REQUIRED filesystem system)
+find_package(Boost REQUIRED COMPONENTS filesystem system)
 
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}
+                    ${CMAKE_SOURCE_DIR}/gui
+                    ${OpenCV_INCLUDE_DIRS}
+                    ${Boost_INCLUDE_DIRS})
 
 set(SOURCE_FILES
     main.cpp
     file_manager.cpp
     image_converter.cpp
     gui/main_window.cpp
-    gui/create_job_dialog.cpp
-)
+    gui/create_job_dialog.cpp)
 
 add_executable(PhotoWorkflow ${SOURCE_FILES})
 
