@@ -1,24 +1,22 @@
-#include "main_window.h"
-#include "ui_main_window.h"
-#include "image_converter.h"
+#ifndef CREATE_JOB_DIALOG_H
+#define CREATE_JOB_DIALOG_H
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
+#include <QDialog>
+
+namespace Ui {
+class CreateJobDialog;
 }
 
-MainWindow::~MainWindow()
+class CreateJobDialog : public QDialog
 {
-    delete ui;
-}
+    Q_OBJECT
 
-void MainWindow::on_button_convert_clicked()
-{
-    QString inputPath = ui->inputPathLineEdit->text();
-    QString outputPath = ui->outputPathLineEdit->text();
+public:
+    explicit CreateJobDialog(QWidget *parent = nullptr);
+    ~CreateJobDialog();
 
-    ImageConverter imageConverter;
-    imageConverter.convert(inputPath.toStdString(), outputPath.toStdString());
-}
+private:
+    Ui::CreateJobDialog *ui;
+};
+
+#endif // CREATE_JOB_DIALOG_H
