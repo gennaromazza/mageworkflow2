@@ -24,7 +24,7 @@ jobs:
 
     - name: Install Qt 5.12.2
       run: |
-        python3 -m aqt install-qt -O /opt/Qt linux desktop 5.12.2 gcc_64 -m qtcore qtgui qtwidgets
+        python3 -m aqt install-qt -O /opt/Qt linux desktop 5.12.2 gcc_64
 
     - name: Set Qt environment variables
       run: |
