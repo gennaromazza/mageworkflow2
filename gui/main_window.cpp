@@ -1,52 +1,24 @@
-// main_window.cpp
 #include "main_window.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QFileDialog>
-#include <QMessageBox>
+#include "ui_main_window.h"
+#include "image_converter.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
-    QWidget *centralWidget = new QWidget(this);
-    setCentralWidget(centralWidget);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
-
-    QHBoxLayout *inputLayout = new QHBoxLayout();
-    QLabel *inputLabel = new QLabel("Input Path:");
-    inputPathLineEdit = new QLineEdit();
-    inputLayout->addWidget(inputLabel);
-    inputLayout->addWidget(inputPathLineEdit);
-
-    QHBoxLayout *outputLayout = new QHBoxLayout();
-    QLabel *outputLabel = new QLabel("Output Path:");
-    outputPathLineEdit = new QLineEdit();
-    outputLayout->addWidget(outputLabel);
-    outputLayout->addWidget(outputPathLineEdit);
-
-    button_convert = new QPushButton("Convert", this);
-    connect(button_convert, &QPushButton::clicked, this, &MainWindow::on_button_convert_clicked);
-
-    mainLayout->addLayout(inputLayout);
-    mainLayout->addLayout(outputLayout);
-    mainLayout->addWidget(button_convert);
+    ui->setupUi(this);
 }
 
 MainWindow::~MainWindow()
 {
-    // Cleanup code if needed
+    delete ui;
 }
 
 void MainWindow::on_button_convert_clicked()
 {
-    QString inputPath = inputPathLineEdit->text();
-    QString outputPath = outputPathLineEdit->text();
-    try {
-        imageConverter.convert(inputPath.toStdString(), outputPath.toStdString());
-        QMessageBox::information(this, "Success", "Image converted successfully!");
-    } catch (const std::exception &ex) {
-        QMessageBox::critical(this, "Error", ex.what());
-    }
+    QString inputPath = ui->inputPathLineEdit->text();
+    QString outputPath = ui->outputPathLineEdit->text();
+
+    ImageConverter imageConverter;
+    imageConverter.convert(inputPath.toStdString(), outputPath.toStdString());
 }
