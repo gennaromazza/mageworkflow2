@@ -31,7 +31,7 @@ jobs:
           ${{ runner.os }}-cmake-
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y cmake g++ qt5-default libopencv-dev libboost-all-dev
+      run: sudo apt-get update && sudo apt-get install -y cmake g++ qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libopencv-dev libboost-all-dev
 
     - name: Remove build directory
       run: rm -rf build
