@@ -1,4 +1,5 @@
 name: Build PhotoWorkflow
+
 on:
   push:
     branches:
@@ -10,71 +11,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++ libboost-all-dev libopencv-dev python3 libgl1-mesa-dev
-          python3 -m pip install aqtinstall
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ libboost-all-dev libopencv-dev python3
+        python3 -m pip install aqtinstall
 
-      - name: List available Qt modules
-        run: |
-          python3 -m aqt list-qt linux desktop --modules 5.12.2 gcc_64
+    - name: Install Qt 5.12.2
+      run: |
+        python3 -m aqt install-qt -O /opt/Qt linux desktop 5.12.2 gcc_64 -m qtcore qtgui qtwidgets
 
-      - name: Install Qt 5.12.2
-        run: |
-          python3 -m aqt install-qt -O /opt/Qt linux desktop 5.12.2 gcc_64
+    - name: Set Qt environment variables
+      run: |
+        echo "/opt/Qt/5.12.2/gcc_64/bin" >> $GITHUB_PATH
+        echo "QT_PLUGIN_PATH=/opt/Qt/5.12.2/gcc_64/plugins" >> $GITHUB_ENV
+        echo "QML2_IMPORT_PATH=/opt/Qt/5.12.2/gcc_64/qml" >> $GITHUB_ENV
+        echo "Qt5_DIR=/opt/Qt/5.12.2/gcc_64/lib/cmake/Qt5" >> $GITHUB_ENV
 
-      - name: Set Qt environment variables
-        run: |
-          echo "/opt/Qt/5.12.2/gcc_64/bin" >> $GITHUB_PATH
-          echo "QT_PLUGIN_PATH=/opt/Qt/5.12.2/gcc_64/plugins" >> $GITHUB_ENV
-          echo "QML2_IMPORT_PATH=/opt/Qt/5.12.2/gcc_64/qml" >> $GITHUB_ENV
-          echo "Qt5_DIR=/opt/Qt/5.12.2/gcc_64/lib/cmake/Qt5" >> $GITHUB_ENV
-
-      - name: List Installed Qt Directory
-        run: |
-          echo "Listing Qt installation directory:"
-          ls -R /opt/Qt
-
-      - name: List Installed Qt 5.12.2 Directory
-        run: |
-          echo "Listing Qt 5.12.2 directory:"
-          ls -R /opt/Qt/5.12.2/gcc_64
-
-      - name: Check Qt5Config.cmake
-        run: |
-          echo "Checking for Qt5Config.cmake:"
-          ls /opt/Qt/5.12.2/gcc_64/lib/cmake/Qt5/Qt5Config.cmake
-
-      - name: Verify Qt Installation
-        run: |
-          echo "Qt5_DIR: $Qt5_DIR"
-          echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
-          find /opt/Qt -name Qt5Config.cmake
-
-      - name: Check OpenGL headers
-        run: |
-          ls /usr/include/GL/gl.h
-          echo "OpenGL headers location: $(find /usr -name gl.h)"
-
-      - name: Configure CMake
-        run: |
-          cmake -S . -B build -DCMAKE_PREFIX_PATH=/opt/Qt/5.12.2/gcc_64 -DOPENGL_INCLUDE_DIR=/usr/include --debug-find
-
-      - name: Build
-        run: |
-          cmake --build build --verbose
-
-      - name: List Build Directory
-        run: |
-          ls -R build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: PhotoWorkflow
-          path: build/
+    - name: Configure CMake
+      run:
