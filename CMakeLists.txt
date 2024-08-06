@@ -9,8 +9,10 @@ find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem system)
 
 include_directories(${Qt5Widgets_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR})  # Include la directory principale
+include_directories(${CMAKE_SOURCE_DIR}/gui)  # Include la directory gui
+
 add_definitions(${Qt5Widgets_DEFINITIONS})
-include_directories(${CMAKE_SOURCE_DIR})
 
 set(SOURCE_FILES
     main.cpp
