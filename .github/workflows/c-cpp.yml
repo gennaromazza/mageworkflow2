@@ -44,3 +44,10 @@ jobs:
 
     - name: Build
       run: cmake --build build --verbose
+
+    - name: Verify OpenCV installation
+      run: |
+        echo '#include <opencv2/opencv.hpp>' > test_opencv.cpp
+        echo 'int main() { cv::Mat img; return 0; }' >> test_opencv.cpp
+        g++ test_opencv.cpp -o test_opencv `pkg-config --cflags --libs opencv4`
+        ./test_opencv
