@@ -17,7 +17,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ libboost-all-dev libopencv-dev python3
+          sudo apt-get install -y cmake g++ libboost-all-dev libopencv-dev python3 libgl1-mesa-dev
           python3 -m pip install aqtinstall
 
       - name: List available Qt modules
@@ -56,13 +56,18 @@ jobs:
           echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
           find /opt/Qt -name Qt5Config.cmake
 
+      - name: Check OpenGL headers
+        run: |
+          ls /usr/include/GL/gl.h
+          echo "OpenGL headers location: $(find /usr -name gl.h)"
+
       - name: Configure CMake
         run: |
-          cmake -S . -B build -DCMAKE_PREFIX_PATH=/opt/Qt/5.12.2/gcc_64 --debug-find
+          cmake -S . -B build -DCMAKE_PREFIX_PATH=/opt/Qt/5.12.2/gcc_64 -DOPENGL_INCLUDE_DIR=/usr/include --debug-find
 
       - name: Build
         run: |
-          cmake --build build
+          cmake --build build --verbose
 
       - name: List Build Directory
         run: |
