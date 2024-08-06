@@ -36,14 +36,24 @@ jobs:
           echo "Listing Qt 5.12.2 directory:"
           ls -R /home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64
 
-      - name: List CMake Files
+      - name: Check Qt5Config.cmake
         run: |
-          echo "Listing CMake files in Qt 5.12.2 directory:"
-          find /home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64 -name "*Config.cmake"
+          echo "Checking for Qt5Config.cmake:"
+          ls /home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64/lib/cmake/Qt5/Qt5Config.cmake
+
+      - name: Set Qt5_DIR
+        run: |
+          echo "Setting Qt5_DIR"
+          export Qt5_DIR="/home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64/lib/cmake/Qt5"
+
+      - name: Set CMake Prefix Path
+        run: |
+          echo "Setting CMAKE_PREFIX_PATH"
+          export CMAKE_PREFIX_PATH="/home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64"
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build -DCMAKE_PREFIX_PATH="/home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64/lib/cmake/Qt5"
+          cmake -S . -B build -DCMAKE_PREFIX_PATH="/home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64" --debug-find
 
       - name: Build
         run: |
