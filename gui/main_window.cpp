@@ -1,66 +1,77 @@
 #include "main_window.h"
-#include "file_manager.h"
 #include "create_job_dialog.h"
-#include <QPushButton>
+#include "file_manager.h"
+
 #include <QVBoxLayout>
-#include <QLineEdit>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
-#include <QIcon>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    // Setup UI and connect signals/slots
     QWidget *centralWidget = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout(centralWidget);
-
-    QLabel *label = new QLabel("Crea Nuovo Lavoro", this);
-    layout->addWidget(label);
-
-    QLineEdit *nameEdit = new QLineEdit(this);
-    nameEdit->setPlaceholderText("Nome del Lavoro");
-    layout->addWidget(nameEdit);
-
-    QLineEdit *dateEdit = new QLineEdit(this);
-    dateEdit->setPlaceholderText("Data (MM/GG/AAAA)");
-    layout->addWidget(dateEdit);
-
-    QPushButton *createJobButton = new QPushButton("Crea Lavoro", this);
-    layout->addWidget(createJobButton);
-
-    connect(createJobButton, &QPushButton::clicked, this, [this, nameEdit, dateEdit]() {
-        QString name = nameEdit->text();
-        QString date = dateEdit->text();
-        if (name.isEmpty() || date.isEmpty()) {
-            QMessageBox::warning(this, "Errore", "Nome del lavoro e data sono obbligatori.");
-            return;
-        }
-        FileManager::createJob(name.toStdString(), date.toStdString(), "/path/to/baseDir");
-        QMessageBox::information(this, "Successo", "Lavoro creato con successo.");
-    });
-
-    QLabel *searchLabel = new QLabel("Cerca File (Full):", this);
-    layout->addWidget(searchLabel);
-
-    QLineEdit *searchEdit = new QLineEdit(this);
-    searchEdit->setText("Full");
-    layout->addWidget(searchEdit);
-
-    QPushButton *searchButton = new QPushButton("Cerca", this);
-    layout->addWidget(searchButton);
-
-    connect(searchButton, &QPushButton::clicked, this, [this, searchEdit]() {
-        QString searchTerm = searchEdit->text();
-        int count1 = FileManager::searchFiles("/path/to/harddisk1", searchTerm.toStdString());
-        int count2 = FileManager::searchFiles("/path/to/harddisk2", searchTerm.toStdString());
-        QMessageBox::information(this, "Risultati Ricerca", 
-                                 QString("Hard Disk 1: %1 file(s)\nHard Disk 2: %2 file(s)")
-                                 .arg(count1).arg(count2));
-    });
-
-    setWindowIcon(QIcon(":/gui/logo.png"));
     setCentralWidget(centralWidget);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+
+    createJobButton = new QPushButton("Crea Lavoro", this);
+    compareDisksButton = new QPushButton("Confronta Dischi", this);
+    searchLineEdit = new QLineEdit(this);
+    outputTextEdit = new QTextEdit(this);
+
+    mainLayout->addWidget(createJobButton);
+    mainLayout->addWidget(compareDisksButton);
+    mainLayout->addWidget(new QLabel("Cerca (FULL):"));
+    mainLayout->addWidget(searchLineEdit);
+    mainLayout->addWidget(outputTextEdit);
+
+    connect(createJobButton, &QPushButton::clicked, this, &MainWindow::createJob);
+    connect(compareDisksButton, &QPushButton::clicked, this, &MainWindow::compareDisks);
+    connect(searchLineEdit, &QLineEdit::returnPressed, this, &MainWindow::searchFiles);
 }
 
-MainWindow::~MainWindow() {
-    // Cleanup
+MainWindow::~MainWindow() {}
+
+void MainWindow::createJob() {
+    CreateJobDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        QString jobName = dialog.getJobName();
+        QDate jobDate = dialog.getJobDate();
+        QString path = QFileDialog::getExistingDirectory(this, "Seleziona Cartella");
+
+        if (!path.isEmpty()) {
+            QString fullPath = QString("%1/%2/%3/%4").arg(path).arg(jobDate.month()).arg(jobDate.day()).arg(jobDate.year());
+            FileManager::createDirectory(fullPath.toStdString());
+            QMessageBox::information(this, "Successo", "Lavoro creato con successo!");
+        }
+    }
 }
+
+void MainWindow::compareDisks() {
+    QString directory1 = QFileDialog::getExistingDirectory(this, "Seleziona il primo disco");
+    QString directory2 = QFileDialog::getExistingDirectory(this, "Seleziona il secondo disco");
+
+    if (directory1.isEmpty() || directory2.isEmpty()) {
+        QMessageBox::warning(this, "Errore", "Seleziona entrambe le directory.");
+        return;
+    }
+
+    std::vector<std::string> files1 = FileManager::getFiles(directory1.toStdString());
+    std::vector<std::string> files2 = FileManager::getFiles(directory2.toStdString());
+
+    QString result;
+    result.append(QString("Hard Disk 1: %1 file(s)\n").arg(files1.size()));
+    result.append(QString("Hard Disk 2: %2 file(s)\n").arg(files2.size()));
+    outputTextEdit->setText(result);
+}
+
+void MainWindow::searchFiles() {
+    QString searchTerm = searchLineEdit->text();
+    QString directory1 = QFileDialog::getExistingDirectory(this, "Seleziona il primo disco");
+    QString directory2 = QFileDialog::getExistingDirectory(this, "Seleziona il secondo disco");
+
+    if (directory1.isEmpty() || directory2.isEmpty()) {
+        QMessageBox::warning(this, "Errore", "Seleziona entrambe le directory.");
+        return;
+    }
+
+    int count1 = FileManager::searchFiles(directory1.toStdString(), search
