@@ -1,7 +1,10 @@
+// main_window.cpp
 #include "main_window.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -40,5 +43,10 @@ void MainWindow::on_button_convert_clicked()
 {
     QString inputPath = inputPathLineEdit->text();
     QString outputPath = outputPathLineEdit->text();
-    imageConverter.convert(inputPath.toStdString(), outputPath.toStdString());
+    try {
+        imageConverter.convert(inputPath.toStdString(), outputPath.toStdString());
+        QMessageBox::information(this, "Success", "Image converted successfully!");
+    } catch (const std::exception &ex) {
+        QMessageBox::critical(this, "Error", ex.what());
+    }
 }
