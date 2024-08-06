@@ -1,70 +1,9 @@
-name: Build PhotoWorkflow
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++ libboost-all-dev libopencv-dev python3
-          python3 -m pip install aqtinstall
-
-      - name: Install Qt
-        run: |
-          python3 -m aqt install-qt linux desktop 5.12.2 gcc_64 --outputdir /home/runner/work/PhotoWorkflow/Qt
-
-      - name: List Installed Qt Directory
-        run: |
-          echo "Listing Qt installation directory:"
-          ls -R /home/runner/work/PhotoWorkflow/Qt
-
-      - name: List Installed Qt 5.12.2 Directory
-        run: |
-          echo "Listing Qt 5.12.2 directory:"
-          ls -R /home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64
-
-      - name: Check Qt5Config.cmake
-        run: |
-          echo "Checking for Qt5Config.cmake:"
-          ls /home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64/lib/cmake/Qt5/Qt5Config.cmake
-
-      - name: Set Qt5_DIR
-        run: |
-          echo "Setting Qt5_DIR"
-          export Qt5_DIR="/home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64/lib/cmake/Qt5"
-
-      - name: Set CMake Prefix Path
-        run: |
-          echo "Setting CMAKE_PREFIX_PATH"
-          export CMAKE_PREFIX_PATH="/home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64"
-
-      - name: Configure CMake
-        run: |
-          cmake -S . -B build -DCMAKE_PREFIX_PATH="/home/runner/work/PhotoWorkflow/Qt/5.12.2/gcc_64" --debug-find
-
-      - name: Build
-        run: |
-          cmake --build build
-
-      - name: List Build Directory
-        run: |
-          ls -R build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: PhotoWorkflow
-          path: build/
+- name: Install Qt 5.12.2
+  run: |
+    python3 -m pip install aqtinstall
+    python3 -m aqt install-qt -O /opt/Qt linux desktop 5.12.2 gcc_64 -m qtcore qtgui qtwidgets
+- name: Set Qt environment variables
+  run: |
+    echo "/opt/Qt/5.12.2/gcc_64/bin" >> $GITHUB_PATH
+    echo "QT_PLUGIN_PATH=/opt/Qt/5.12.2/gcc_64/plugins" >> $GITHUB_ENV
+    echo "QML2_IMPORT_PATH=/opt/Qt/5.12.2/gcc_64/qml" >> $GITHUB_ENV
