@@ -1,12 +1,10 @@
-name: Build PhotoWorkflow
+name: C/C++ CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
@@ -14,35 +12,35 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake g++ libboost-all-dev libopencv-dev python3 libgl1-mesa-dev libglu1-mesa-dev
-        python3 -m pip install aqtinstall
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
 
-    - name: Install Qt 5.12.2
-      run: |
-        python3 -m aqt install-qt -O /opt/Qt linux desktop 5.12.2 gcc_64
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
-    - name: Set Qt environment variables
-      run: |
-        echo "/opt/Qt/5.12.2/gcc_64/bin" >> $GITHUB_PATH
-        echo "QT_PLUGIN_PATH=/opt/Qt/5.12.2/gcc_64/plugins" >> $GITHUB_ENV
-        echo "QML2_IMPORT_PATH=/opt/Qt/5.12.2/gcc_64/qml" >> $GITHUB_ENV
-        echo "Qt5_DIR=/opt/Qt/5.12.2/gcc_64/lib/cmake/Qt5" >> $GITHUB_ENV
+    - name: Cache CMake files
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache
+          build
+        key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-cmake-
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y cmake g++ qt5-default libopencv-dev libboost-all-dev
+
+    - name: Remove build directory
+      run: rm -rf build
+
+    - name: Create build directory
+      run: mkdir build
 
     - name: Configure CMake
-      run: |
-        cmake -S . -B build -DCMAKE_PREFIX_PATH=/opt/Qt/5.12.2/gcc_64
+      run: cmake -S . -B build --trace-expand --debug-output -DCMAKE_PREFIX_PATH=/opt/Qt/5.12.2/gcc_64
 
     - name: Build
-      run: |
-        cmake --build build --verbose
-
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: PhotoWorkflow
-        path: build/
+      run: cmake --build build --verbose
