@@ -2,17 +2,13 @@ cmake_minimum_required(VERSION 3.10)
 
 project(PhotoWorkflow)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem system)
-
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR})  # Include la directory principale
-include_directories(${CMAKE_SOURCE_DIR}/gui)  # Include la directory gui
-
-add_definitions(${Qt5Widgets_DEFINITIONS})
+find_package(Boost COMPONENTS filesystem system REQUIRED)
 
 set(SOURCE_FILES
     main.cpp
@@ -22,13 +18,16 @@ set(SOURCE_FILES
     gui/create_job_dialog.cpp
 )
 
-set(HEADER_FILES
-    file_manager.h
-    image_converter.h
-    gui/main_window.h
-    gui/create_job_dialog.h
+add_executable(PhotoWorkflow ${SOURCE_FILES})
+
+target_include_directories(PhotoWorkflow PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/gui
 )
 
-add_executable(PhotoWorkflow ${SOURCE_FILES} ${HEADER_FILES})
-
-target_link_libraries(PhotoWorkflow Qt5::Core Qt5::Gui Qt5::Widgets ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(PhotoWorkflow PRIVATE
+    Qt5::Widgets
+    ${OpenCV_LIBS}
+    Boost::filesystem
+    Boost::system
+)
