@@ -1,10 +1,12 @@
-name: C/C++ CI
+name: Build and Test
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build:
@@ -12,26 +14,24 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
+      uses: docker/setup-qemu-action@v2
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
 
     - name: Cache CMake files
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
-        path: |
-          ~/.cache
-          build
+        path: build
         key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
         restore-keys: |
           ${{ runner.os }}-cmake-
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y cmake g++ qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libopencv-dev libboost-all-dev
+      run: sudo apt-get update && sudo apt-get install -y cmake g++ qtbase5-dev qtdeclarative5-dev libopencv-dev libboost-all-dev
 
     - name: Remove build directory
       run: rm -rf build
@@ -40,7 +40,7 @@ jobs:
       run: mkdir build
 
     - name: Configure CMake
-      run: cmake -S . -B build --trace-expand --debug-output -DCMAKE_PREFIX_PATH=/opt/Qt/5.12.2/gcc_64
+      run: cmake -S . -B build --trace-expand --debug-output -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt5
 
     - name: Build
       run: cmake --build build --verbose
