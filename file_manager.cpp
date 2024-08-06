@@ -1,13 +1,15 @@
 #include "file_manager.h"
-#include <filesystem>
 #include <iostream>
-#include <algorithm>
-#include <locale>
-#include <codecvt>
-#include <sstream>
-#include <iomanip>
 
-namespace fs = std::filesystem;
+#if __has_include(<filesystem>)
+    #include <filesystem>
+    namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+    #include <experimental/filesystem>
+    namespace fs = std::experimental::filesystem;
+#else
+    #error "Neither <filesystem> nor <experimental/filesystem> are available."
+#endif
 
 std::vector<std::string> FileManager::getFiles(const std::string &directory) {
     std::vector<std::string> files;
@@ -34,6 +36,7 @@ void FileManager::createDirectory(const std::string &path) {
 }
 
 void FileManager::createJob(const std::string &name, const std::string &date, const std::string &baseDir) {
+    // Parse date and create directory structure
     std::istringstream dateStream(date);
     std::tm tm = {};
     dateStream >> std::get_time(&tm, "%m/%d/%Y");
