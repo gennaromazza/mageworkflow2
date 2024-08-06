@@ -8,7 +8,7 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override; // Assicurarsi che il distruttore sia virtuale
 };
 
 #endif // MAIN_WINDOW_H
