@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(PhotoWorkflow)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Specifica i percorsi delle librerie
 set(OpenCV_DIR "C:/opencv/build")
@@ -10,7 +10,7 @@ set(BOOST_ROOT "C:/boost")
 set(CMAKE_PREFIX_PATH "C:/Qt/5.12.2/gcc_64")
 
 # Trova i pacchetti richiesti
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem system)
 
@@ -27,4 +27,4 @@ add_executable(PhotoWorkflow
 )
 
 # Collega le librerie
-target_link_libraries(PhotoWorkflow Qt5::Core Qt5::Gui Qt5::Widgets ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(PhotoWorkflow Qt5::Widgets ${OpenCV_LIBS} ${Boost_LIBRARIES})
