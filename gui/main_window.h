@@ -5,7 +5,7 @@
 #include <QFileDialog>
 #include <QDate>
 #include "file_manager.h"
-#include "image_converter.h"
+#include "../image_converter.h"
 #include "create_job_dialog.h"
 
 namespace Ui {
