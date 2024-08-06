@@ -5,9 +5,9 @@ project(PhotoWorkflow)
 set(CMAKE_CXX_STANDARD 17)
 
 # Specifica i percorsi delle librerie
-set(OpenCV_DIR "C:/opencv/build")
-set(BOOST_ROOT "C:/boost")
-set(CMAKE_PREFIX_PATH "C:/Qt/5.12.2/gcc_64")
+set(OpenCV_DIR "/usr/include/opencv4")
+set(BOOST_ROOT "/usr/include/boost")
+set(CMAKE_PREFIX_PATH "/opt/Qt/5.12.2/gcc_64")
 
 # Trova i pacchetti richiesti
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
