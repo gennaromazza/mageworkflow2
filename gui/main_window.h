@@ -2,27 +2,32 @@
 #define MAIN_WINDOW_H
 
 #include <QMainWindow>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QTextEdit>
+#include <QFileDialog>
+#include <QDate>
+#include "file_manager.h"
+#include "image_converter.h"
+#include "create_job_dialog.h"
 
-class MainWindow : public QMainWindow {
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
+    void compareDirectories();
     void createJob();
-    void compareDisks();
-    void searchFiles();
 
 private:
-    QPushButton *createJobButton;
-    QPushButton *compareDisksButton;
-    QLineEdit *searchLineEdit;
-    QTextEdit *outputTextEdit;
+    Ui::MainWindow *ui;
+    QString hardDisk1Path;
+    QString hardDisk2Path;
 };
 
 #endif // MAIN_WINDOW_H
