@@ -16,18 +16,37 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake g++ mingw-w64 qtbase5-dev qtdeclarative5-dev libopencv-dev libboost-all-dev
+        sudo apt-get install -y cmake g++ mingw-w64 nsis
 
-    - name: Create build directory
-      run: mkdir build
+    - name: Set up MXE (M cross environment)
+      run: |
+        sudo apt-get install -y software-properties-common
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 86B72ED9
+        sudo add-apt-repository "deb [arch=amd64] https://pkg.mxe.cc/repos/apt `lsb_release -sc` main"
+        sudo apt-get update
+        sudo apt-get install -y mxe-x86-64-w64-mingw32.static-qt5 mxe-x86-64-w64-mingw32.static-opencv mxe-x86-64-w64-mingw32.static-boost
+
+    - name: Set MXE environment variables
+      run: |
+        echo "MXE_PREFIX=/usr/lib/mxe/usr/x86_64-w64-mingw32.static" >> $GITHUB_ENV
+        echo "PATH=$PATH:/usr/lib/mxe/usr/bin" >> $GITHUB_ENV
+
+    - name: Verify and copy icon
+      run: |
+        if [ -f "eab290ac-4e82-479f-b62e-9fb1d759a300.ico" ]; then
+          echo "Icon file found"
+          mkdir -p build
+          cp eab290ac-4e82-479f-b62e-9fb1d759a300.ico build/
+        else
+          echo "Icon file not found"
+          exit 1
+        fi
 
     - name: Configure CMake for Windows
       run: |
         cmake -S . -B build \
-        -DCMAKE_SYSTEM_NAME=Windows \
-        -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
-        -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
-        -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_TOOLCHAIN_FILE=$MXE_PREFIX/share/cmake/mxe-conf.cmake \
+        -DCMAKE_FIND_ROOT_PATH=$MXE_PREFIX \
         -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
         -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
         -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
@@ -50,7 +69,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: PhotoWorkflow-Windows-Installer
-        path: build/PhotoWorkflow-*-win64.exe
+        path: build/PhotoWorkflow-*-Windows.exe
         if-no-files-found: error
 
     - name: Upload Build Logs
