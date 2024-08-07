@@ -31,6 +31,13 @@ jobs:
         echo "MXE_PREFIX=/usr/lib/mxe/usr/x86_64-w64-mingw32.static" >> $GITHUB_ENV
         echo "PATH=$PATH:/usr/lib/mxe/usr/bin" >> $GITHUB_ENV
 
+    - name: Verify MXE setup
+      run: |
+        echo "MXE_PREFIX: $MXE_PREFIX"
+        echo "PATH: $PATH"
+        ls -l $MXE_PREFIX/lib/cmake/Qt5
+        ls -l $MXE_PREFIX/lib/cmake/Boost-1.80.0
+
     - name: Verify and copy icon
       run: |
         if [ -f "eab290ac-4e82-479f-b62e-9fb1d759a300.ico" ]; then
@@ -49,7 +56,9 @@ jobs:
         -DCMAKE_FIND_ROOT_PATH=$MXE_PREFIX \
         -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
         -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
-        -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+        -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+        -DBOOST_ROOT=$MXE_PREFIX \
+        -DBoost_NO_SYSTEM_PATHS=ON
 
     - name: Build
       run: cmake --build build --config Release
