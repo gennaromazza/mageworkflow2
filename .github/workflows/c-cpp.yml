@@ -52,6 +52,9 @@ jobs:
     - name: Package with CPack
       run: cmake --build build --target package
 
+    - name: List build directory contents
+      run: ls -la build
+
     - name: Upload Package
       uses: actions/upload-artifact@v2
       with:
