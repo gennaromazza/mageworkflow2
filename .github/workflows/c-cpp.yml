@@ -30,26 +30,25 @@ jobs:
       run: |
         echo "MXE installation directory contents:"
         ls -R /usr/lib/mxe
-        echo "Searching for Qt5Config.cmake:"
-        find /usr/lib/mxe -name Qt5Config.cmake
-        echo "Searching for BoostConfig.cmake:"
-        find /usr/lib/mxe -name BoostConfig.cmake
+        echo "Searching for mxe-conf.cmake:"
+        find /usr/lib/mxe -name mxe-conf.cmake
 
     - name: Set MXE environment variables
       run: |
-        MXE_PREFIX=$(find /usr/lib/mxe -type d -name "x86_64-w64-mingw32.static" | head -n 1)
-        echo "MXE_PREFIX=$MXE_PREFIX" >> $GITHUB_ENV
+        echo "MXE_PREFIX=/usr/lib/mxe/usr/x86_64-w64-mingw32.static" >> $GITHUB_ENV
         echo "PATH=$PATH:/usr/lib/mxe/usr/bin" >> $GITHUB_ENV
+        echo "MXE_TOOLCHAIN=$(find /usr/lib/mxe -name mxe-conf.cmake | head -n 1)" >> $GITHUB_ENV
 
     - name: Verify MXE setup
       run: |
         echo "MXE_PREFIX: $MXE_PREFIX"
         echo "PATH: $PATH"
+        echo "MXE_TOOLCHAIN: $MXE_TOOLCHAIN"
         ls -l $MXE_PREFIX || echo "MXE_PREFIX directory not found"
-        QT_CMAKE_DIR=$(find $MXE_PREFIX -type d -name "Qt5" | head -n 1)
-        BOOST_CMAKE_DIR=$(find $MXE_PREFIX -type d -name "Boost" | head -n 1)
-        echo "Qt5 CMake directory: $QT_CMAKE_DIR"
-        echo "Boost CMake directory: $BOOST_CMAKE_DIR"
+        echo "Qt5 CMake files:"
+        find $MXE_PREFIX -name "Qt5Config.cmake"
+        echo "Boost CMake files:"
+        find $MXE_PREFIX -name "BoostConfig.cmake"
 
     - name: Verify and copy icon
       run: |
@@ -64,17 +63,15 @@ jobs:
 
     - name: Configure CMake for Windows
       run: |
-        QT_CMAKE_DIR=$(find $MXE_PREFIX -type d -name "Qt5" | head -n 1)
-        BOOST_CMAKE_DIR=$(find $MXE_PREFIX -type d -name "Boost" | head -n 1)
         cmake -S . -B build \
-        -DCMAKE_TOOLCHAIN_FILE=$MXE_PREFIX/share/cmake/mxe-conf.cmake \
+        -DCMAKE_TOOLCHAIN_FILE=$MXE_TOOLCHAIN \
         -DCMAKE_FIND_ROOT_PATH=$MXE_PREFIX \
         -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
         -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
         -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
-        -DQt5_DIR=$QT_CMAKE_DIR \
-        -DBOOST_ROOT=$MXE_PREFIX \
-        -DBoost_DIR=$BOOST_CMAKE_DIR
+        -DCMAKE_C_COMPILER=$MXE_PREFIX/bin/x86_64-w64-mingw32.static-gcc \
+        -DCMAKE_CXX_COMPILER=$MXE_PREFIX/bin/x86_64-w64-mingw32.static-g++ \
+        -DCMAKE_MAKE_PROGRAM=/usr/bin/make
 
     - name: Build
       run: cmake --build build --config Release
