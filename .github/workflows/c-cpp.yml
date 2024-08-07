@@ -48,3 +48,6 @@ jobs:
 
     - name: Build
       run: cmake --build build --verbose
+
+    - name: Package with CPack
+      run: cmake --build build --target package
