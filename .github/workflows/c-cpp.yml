@@ -1,4 +1,4 @@
-name: Build and Package (Diagnostic)
+name: Cross-Compile for Windows
 on:
   push:
     branches:
@@ -11,69 +11,63 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
-    
-    - name: List initial directory contents
-      run: |
-        echo "Initial directory contents:"
-        ls -la
-        pwd
+      uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y cmake g++ qtbase5-dev qtdeclarative5-dev libopencv-dev libboost-all-dev
-    
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ mingw-w64 qtbase5-dev qtdeclarative5-dev libopencv-dev libboost-all-dev
+
     - name: Create build directory
       run: mkdir build
-    
-    - name: List directory contents after creating build
+
+    - name: Configure CMake for Windows
       run: |
-        echo "Directory contents after creating build:"
-        ls -la
+        cmake -S . -B build \
+        -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+        -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
+        -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+        -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+        -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Package with CPack
+      run: |
+        cd build
+        cpack -G NSIS
+        cd ..
+
+    - name: List build directory contents
+      run: |
         echo "Build directory contents:"
         ls -la build
 
-    - name: Configure CMake
-      run: cmake -S . -B build --trace-expand --debug-output -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt5
-    
-    - name: Build
-      run: cmake --build build --verbose
-    
-    - name: List build directory contents after build
-      run: |
-        echo "Build directory contents after build:"
-        ls -la build
-    
-    - name: Package with CPack
-      run: cmake --build build --target package
-    
-    - name: Create ZIP Package
-      run: zip -j build/PhotoWorkflow-1.0.0-win64.zip build/PhotoWorkflow-1.0.0-win64.* || echo "ZIP creation failed"
-    
-    - name: List final directory contents
-      run: |
-        echo "Final directory contents:"
-        ls -la
-        echo "Final build directory contents:"
-        ls -la build || echo "Build directory not found"
-    
-    - name: Upload Package
-      uses: actions/upload-artifact@v3
+    - name: Upload Windows Installer
+      uses: actions/upload-artifact@v4
       with:
-        name: PhotoWorkflow
-        path: build/PhotoWorkflow-1.0.0-win64.zip
-    
+        name: PhotoWorkflow-Windows-Installer
+        path: build/PhotoWorkflow-*-win64.exe
+        if-no-files-found: error
+
     - name: Upload Build Logs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: build-logs
-        path: |
-          build/CMakeFiles/CMakeOutput.log
-          build/CMakeFiles/CMakeError.log
+        path: build/
+        if-no-files-found: warn
 
-    - name: Upload Workspace
-      uses: actions/upload-artifact@v3
+    - name: Upload CMake Configuration
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: workspace
-        path: .
+        name: cmake-config
+        path: |
+          build/CMakeCache.txt
+          build/CMakeFiles/CMakeError.log
+          build/CMakeFiles/CMakeOutput.log
+        if-no-files-found: warn
