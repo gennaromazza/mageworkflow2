@@ -8,7 +8,8 @@ set(CMAKE_AUTORCC ON)
 
 # Support for cross-compilation
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(CMAKE_PREFIX_PATH $ENV{MINGW_PREFIX})
+    set(CMAKE_PREFIX_PATH $ENV{MXE_PREFIX}/qt5)
+    set(Qt5_DIR $ENV{MXE_PREFIX}/qt5/lib/cmake/Qt5)
 endif()
 
 # Find required packages
