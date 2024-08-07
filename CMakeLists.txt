@@ -10,6 +10,7 @@ set(CMAKE_AUTORCC ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CMAKE_PREFIX_PATH $ENV{MXE_PREFIX}/qt5)
     set(Qt5_DIR $ENV{MXE_PREFIX}/qt5/lib/cmake/Qt5)
+    set(BOOST_ROOT $ENV{MXE_PREFIX})
 endif()
 
 # Find required packages
