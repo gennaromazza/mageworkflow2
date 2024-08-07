@@ -52,6 +52,9 @@ jobs:
     - name: Package with CPack
       run: cmake --build build --target package
 
+    - name: Create ZIP Package
+      run: zip -j build/PhotoWorkflow-1.0.0-win64.zip build/PhotoWorkflow-1.0.0-win64.*
+
     - name: List build directory contents
       run: ls -la build
 
@@ -59,4 +62,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: PhotoWorkflow
-        path: build/PhotoWorkflow-*.zip
+        path: build/PhotoWorkflow-1.0.0-win64.zip
