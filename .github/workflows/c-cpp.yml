@@ -1,4 +1,4 @@
-name: Build and Package
+name: Build and Package (Diagnostic)
 on:
   push:
     branches:
@@ -12,44 +12,68 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Cache CMake files
-      uses: actions/cache@v3
-      with:
-        path: build
-        key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-cmake-
+    
+    - name: List initial directory contents
+      run: |
+        echo "Initial directory contents:"
+        ls -la
+        pwd
+
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y cmake g++ qtbase5-dev qtdeclarative5-dev libopencv-dev libboost-all-dev
-    - name: Remove build directory
-      run: rm -rf build
+    
     - name: Create build directory
       run: mkdir build
-    - name: Verify OpenCV installation
+    
+    - name: List directory contents after creating build
       run: |
-        pkg-config --modversion opencv4
+        echo "Directory contents after creating build:"
+        ls -la
+        echo "Build directory contents:"
+        ls -la build
+
     - name: Configure CMake
       run: cmake -S . -B build --trace-expand --debug-output -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu/cmake/Qt5
+    
     - name: Build
       run: cmake --build build --verbose
+    
+    - name: List build directory contents after build
+      run: |
+        echo "Build directory contents after build:"
+        ls -la build
+    
     - name: Package with CPack
       run: cmake --build build --target package
+    
     - name: Create ZIP Package
-      run: zip -j build/PhotoWorkflow-1.0.0-win64.zip build/PhotoWorkflow-1.0.0-win64.*
-    - name: List build directory contents
-      run: ls -la build
+      run: zip -j build/PhotoWorkflow-1.0.0-win64.zip build/PhotoWorkflow-1.0.0-win64.* || echo "ZIP creation failed"
+    
+    - name: List final directory contents
+      run: |
+        echo "Final directory contents:"
+        ls -la
+        echo "Final build directory contents:"
+        ls -la build || echo "Build directory not found"
+    
     - name: Upload Package
       uses: actions/upload-artifact@v3
       with:
         name: PhotoWorkflow
         path: build/PhotoWorkflow-1.0.0-win64.zip
+    
     - name: Upload Build Logs
       uses: actions/upload-artifact@v3
       if: always()
       with:
         name: build-logs
-        path: build/CMakeFiles/CMakeOutput.log
+        path: |
+          build/CMakeFiles/CMakeOutput.log
+          build/CMakeFiles/CMakeError.log
+
+    - name: Upload Workspace
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: workspace
+        path: .
