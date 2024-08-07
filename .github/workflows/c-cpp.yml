@@ -26,17 +26,30 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y mxe-x86-64-w64-mingw32.static-qt5 mxe-x86-64-w64-mingw32.static-opencv mxe-x86-64-w64-mingw32.static-boost
 
+    - name: Debug MXE installation
+      run: |
+        echo "MXE installation directory contents:"
+        ls -R /usr/lib/mxe
+        echo "Searching for Qt5Config.cmake:"
+        find /usr/lib/mxe -name Qt5Config.cmake
+        echo "Searching for BoostConfig.cmake:"
+        find /usr/lib/mxe -name BoostConfig.cmake
+
     - name: Set MXE environment variables
       run: |
-        echo "MXE_PREFIX=/usr/lib/mxe/usr/x86_64-w64-mingw32.static" >> $GITHUB_ENV
+        MXE_PREFIX=$(find /usr/lib/mxe -type d -name "x86_64-w64-mingw32.static" | head -n 1)
+        echo "MXE_PREFIX=$MXE_PREFIX" >> $GITHUB_ENV
         echo "PATH=$PATH:/usr/lib/mxe/usr/bin" >> $GITHUB_ENV
 
     - name: Verify MXE setup
       run: |
         echo "MXE_PREFIX: $MXE_PREFIX"
         echo "PATH: $PATH"
-        ls -l $MXE_PREFIX/lib/cmake/Qt5
-        ls -l $MXE_PREFIX/lib/cmake/Boost-1.80.0
+        ls -l $MXE_PREFIX || echo "MXE_PREFIX directory not found"
+        QT_CMAKE_DIR=$(find $MXE_PREFIX -type d -name "Qt5" | head -n 1)
+        BOOST_CMAKE_DIR=$(find $MXE_PREFIX -type d -name "Boost" | head -n 1)
+        echo "Qt5 CMake directory: $QT_CMAKE_DIR"
+        echo "Boost CMake directory: $BOOST_CMAKE_DIR"
 
     - name: Verify and copy icon
       run: |
@@ -51,14 +64,17 @@ jobs:
 
     - name: Configure CMake for Windows
       run: |
+        QT_CMAKE_DIR=$(find $MXE_PREFIX -type d -name "Qt5" | head -n 1)
+        BOOST_CMAKE_DIR=$(find $MXE_PREFIX -type d -name "Boost" | head -n 1)
         cmake -S . -B build \
         -DCMAKE_TOOLCHAIN_FILE=$MXE_PREFIX/share/cmake/mxe-conf.cmake \
         -DCMAKE_FIND_ROOT_PATH=$MXE_PREFIX \
         -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
         -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
         -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+        -DQt5_DIR=$QT_CMAKE_DIR \
         -DBOOST_ROOT=$MXE_PREFIX \
-        -DBoost_NO_SYSTEM_PATHS=ON
+        -DBoost_DIR=$BOOST_CMAKE_DIR
 
     - name: Build
       run: cmake --build build --config Release
